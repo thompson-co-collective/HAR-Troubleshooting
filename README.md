@@ -1,13 +1,13 @@
 # HAR-Troubleshooting
 
 ## Executive summary (plain English)
-Your HAR capture confirms your diagnosis: there are no critical HTTP failures, but the page is spending a lot of time waiting on **marketing/analytics tags** (Clarity + GTM/HubSpot-related requests), and that creates contention with your own app bundles. The recording started on **April 26, 2026 at 03:42:43 UTC**.
+HAR capture confirms diagnosis: there are no critical HTTP failures, but the page is spending a lot of time waiting on **marketing/analytics tags** (Clarity + GTM/HubSpot-related requests), and that creates contention with app bundles. The recording started on **April 26, 2026 at 03:42:43 UTC**.
 
 In this capture:
 - `onContentLoad` is ~735 ms, but `onLoad` is ~4610 ms (much later because background/tag activity keeps running).
 - `e.clarity.ms` is the noisiest third-party endpoint by request count (83 requests).
 - GTM, Clarity script load, HubSpot banner, and HubSpot pixel all show meaningful queueing/blocked time.
-- Your first-party app bundles (`index-BalvUbkt.js`, `vendor-DlOK_Mxb.js`) repeatedly show high blocked/queueing delays, which is consistent with connection/main-thread competition.
+- First-party app bundles (`index-BalvUbkt.js`, `vendor-DlOK_Mxb.js`) repeatedly show high blocked/queueing delays, which is consistent with connection/main-thread competition.
 
 ---
 
@@ -25,19 +25,19 @@ From this HAR file:
 | `js.hsadspixel.net/pixels.js` | 7 | 272 ms | 477 ms | 78 ms | 162 ms |
 
 ### 2) Core assets are delayed before download
-Your core bundles are not just "large" — they are often **waiting** before transfer starts:
+Core bundles are not just "large" — they are often **waiting** before transfer starts:
 
 | First-party asset | Requests | Avg total time | Avg blocked | Max blocked |
 |---|---:|---:|---:|---:|
 | `assets/index-BalvUbkt.js` | 7 | 335 ms | 232 ms | 441 ms |
 | `assets/vendor-DlOK_Mxb.js` | 7 | 400 ms | 238 ms | 466 ms |
 
-This blocked-time pattern is exactly what you'd expect when many tags compete for network sockets and main-thread execution early in page lifecycle.
+This blocked-time pattern is exactly what expect when many tags compete for network sockets and main-thread execution early in page lifecycle.
 
 ---
 
 ## Recommended resolution path (novice-friendly, GTM-first)
-Because GTM is your “house” for attribution, do this in phases so you preserve business tracking while reducing performance cost.
+Because GTM is“house” for attribution, do this in phases so preserve business tracking while reducing performance cost.
 
 ## Phase 1 — Tag inventory and business owner signoff (1–2 days)
 1. In GTM, export current container JSON (Admin → Export Container).
@@ -83,16 +83,16 @@ Use a trigger model in GTM that prioritizes UX first:
 This cuts early requests and legal risk at the same time.
 
 ## Phase 4 — Cloudflare optimization layer (safe wins)
-Since you’re on Cloudflare DNS + Pages, enable/verify:
+Since Cloudflare DNS + Pages, enable/verify:
 1. **HTTP/3 + TLS 1.3** enabled.
 2. **Brotli compression** enabled.
-3. **Early Hints** enabled (if available on your plan).
+3. **Early Hints** enabled (if available on plan).
 4. Cache static JS/CSS aggressively via `Cache-Control` headers from build output.
 5. Avoid loading GTM proxy scripts from extra hostnames unless necessary; keep host fan-out low.
 
-## Phase 5 — Protect your core bundles
+## Phase 5 — Protect core bundles
 1. Keep first-party `index`/`vendor` bundles as high priority in HTML order.
-2. Add `preload` for your most critical JS/CSS chunks only (do not over-preload).
+2. Add `preload` for most critical JS/CSS chunks only (do not over-preload).
 3. Reduce bundle size through code-splitting where possible.
 4. Defer non-critical inline scripts until after first render.
 
@@ -130,4 +130,4 @@ If metrics improve and tracking still passes QA, publish to production.
 - [ ] Re-test with HAR and compare blocked time on `index`/`vendor` assets.
 - [ ] Verify GA4 + conversion events are still correct.
 
-If you want, next step can be a **copy/paste GTM implementation playbook** (exact trigger names, tag sequencing, and rollback plan) written for non-developers.
+Next step create **copy/paste GTM implementation playbook** (exact trigger names, tag sequencing, and rollback plan) written for non-developers.)
