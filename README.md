@@ -123,6 +123,33 @@ If metrics improve and tracking still passes QA, publish to production.
 
 ---
 
+
+## Should you remove all tags except GTM and rely only on UTM parameters?
+Short answer: **you can remove direct/embed tags and keep GTM as the only loader**, but **UTMs alone are not enough** for complete attribution.
+
+### Safe pattern
+- Keep only GTM (and required consent/CMP code) hardcoded on site.
+- Load GA4, Clarity, HubSpot, Meta, and other vendors from GTM triggers.
+- Keep UTMs for campaign source/medium/campaign metadata.
+
+### Risk if you use only UTMs
+If you remove vendor/event tags and rely just on UTMs, you may miss:
+- Conversion events (form submits, purchases, qualified leads).
+- View-through / post-click matching used by ad platforms.
+- Session stitching and identity signals required by some tools.
+- Retargeting audiences and optimization signals.
+
+### Recommended compromise (best practice)
+1. Keep GTM as the only on-site tag loader.
+2. Keep UTMs standardized for all paid/owned campaigns.
+3. Keep only essential event tags in GTM (GA4 + required conversion pixels).
+4. Delay or interaction-gate non-essential tags (heatmaps/replay/extra pixels).
+5. Validate attribution after each publish with GA4 + ad platform conversion checks.
+
+This gives you cleaner performance without sacrificing critical attribution quality.
+
+---
+
 ## Quick “start tomorrow” checklist
 - [ ] Export GTM container and inventory all tags.
 - [ ] Pause/remove dead tags.
