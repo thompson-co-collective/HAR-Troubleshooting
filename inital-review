@@ -1,0 +1,24 @@
+The "Big Picture"
+The recording shows a normal, relatively smooth series of network requests as the webpage initially loads. No actual crashes or 500-level service failures occurred, but several background analytics and tracking scripts (like Microsoft Clarity and HubSpot) were initiated which can slightly delay how fast the page feels to the user, even if the primary content loads fine. The page itself loaded correctly, but these third-party trackers are adding unnecessary overhead.
+
+Top 3 Red Flags
+Heavy Third-Party Script Usage: A large amount of network activity is dedicated to third-party tools, primarily Microsoft Clarity (clarity.js) and HubSpot (gtm.js, pixels.js, banner.js).
+
+Blocked Request Time: Several requests experienced short periods where they were "blocked" or queued before they could even start downloading (e.g., index-BalvUbkt.js was blocked for almost 60 milliseconds).
+
+Delayed Background Requests: There are several data collection requests sent back to Microsoft Clarity (https://e.clarity.ms/collect) that take a relatively long time to complete their background tasks, occasionally waiting over a second to receive a response.
+
+The "Why"
+Heavy Third-Party Script Usage: When a website loads too many external tracking tools, the user's browser has to work harder to download and process them. This competes with the actual content of your site (like images and text), making the website feel sluggish or unresponsive to clicks while those background tasks finish.
+
+Blocked Request Time: "Blocked" time means the browser is ready to download a file but is waiting in line because too many other files are trying to download at the exact same time. This creates a bottleneck where essential files are stuck waiting, delaying the moment the user can actually see or interact with the page.
+
+Delayed Background Requests: While these specific collect requests don't visibly break the page, they consume network resources. If a user is on a slower connection (like a mobile network), these long, drawn-out background tasks can eat up their bandwidth and make browsing your site feel heavy.
+
+Recommended Actions
+
+Review Third-Party Tools: Ask the team to audit the tracking scripts currently running. Are Microsoft Clarity and all the HubSpot pixels strictly necessary? Removing unused trackers is the fastest way to speed up a site.
+
+Defer Non-Essential Scripts: Request that analytics and tracking scripts be loaded after the main visual content of the page has finished loading so they don't block the user's view.
+
+Optimize File Delivery: Have the team check the server configuration (Cloudflare) to ensure files aren't unnecessarily queuing up and causing blocked time during the initial connection.
